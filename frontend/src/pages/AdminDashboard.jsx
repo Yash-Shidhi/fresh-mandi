@@ -1,14 +1,3 @@
-/**
- * AdminDashboard Component
- * Comprehensive admin panel for managing FreshMandi platform
- * Features:
- * - User management (view, approve, delete)
- * - Product management (view, delete)
- * - Order management and monitoring
- * - Analytics dashboard with charts
- * - Real-time statistics
- */
-
 import React, { useState, useEffect } from "react";
 import API from "../services/api";
 import toast from "react-hot-toast";
