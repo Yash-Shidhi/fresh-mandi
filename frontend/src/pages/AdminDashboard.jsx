@@ -17,7 +17,6 @@ import {
   ResponsiveContainer,
 } from "recharts";
 
-// Color palette for charts
 const COLORS = [
   "#10B981",
   "#3B82F6",
@@ -58,9 +57,6 @@ export default function AdminDashboard() {
     }
   }, [users, products, orders]);
 
-  /**
-   * Fetch data based on active tab
-   */
   const fetchData = async () => {
     setLoading(true);
     try {
@@ -87,9 +83,6 @@ export default function AdminDashboard() {
     }
   };
 
-  /**
-   * Calculate statistics from data
-   */
   const calculateStats = (usersData, productsData, ordersData) => {
     const farmers = usersData.filter((u) => u.role === "farmer");
     const consumers = usersData.filter((u) => u.role === "consumer");
@@ -105,11 +98,8 @@ export default function AdminDashboard() {
     });
   };
 
-  /**
-   * Prepare data for charts
-   */
   const prepareChartData = () => {
-    // Users by role
+    
     const roleCount = {};
     users.forEach((u) => {
       roleCount[u.role] = (roleCount[u.role] || 0) + 1;
@@ -119,7 +109,7 @@ export default function AdminDashboard() {
       value: count,
     }));
 
-    // Orders by status
+    
     const statusCount = {};
     orders.forEach((o) => {
       statusCount[o.status] = (statusCount[o.status] || 0) + 1;
@@ -131,7 +121,7 @@ export default function AdminDashboard() {
       }),
     );
 
-    // Products by category
+    
     const categoryCount = {};
     products.forEach((p) => {
       categoryCount[p.category] = (categoryCount[p.category] || 0) + 1;
@@ -143,7 +133,7 @@ export default function AdminDashboard() {
       }),
     );
 
-    // Orders over time (last 7 days)
+    
     const ordersOverTime = [];
     for (let i = 6; i >= 0; i--) {
       const date = new Date();
@@ -167,9 +157,6 @@ export default function AdminDashboard() {
     });
   };
 
-  /**
-   * Approve a farmer account
-   */
 
   const handleApprove = async (userId) => {
     try {
