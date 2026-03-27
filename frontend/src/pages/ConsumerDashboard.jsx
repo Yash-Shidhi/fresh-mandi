@@ -47,7 +47,6 @@ export default function ConsumerDashboard() {
     { value: "name-asc", label: "Name: A to Z" },
   ];
 
-  // Load recent searches from localStorage
   useEffect(() => {
     const saved = localStorage.getItem("recentSearches");
     if (saved) {
@@ -59,7 +58,6 @@ export default function ConsumerDashboard() {
     }
   }, []);
 
-  // Debounced fetch products to avoid too many API calls
   const fetchProducts = useCallback(async () => {
     try {
       setLoading(true);
@@ -83,7 +81,6 @@ export default function ConsumerDashboard() {
     }
   }, [city, selectedCategory, minPrice, maxPrice, search, sortBy, sortOrder]);
 
-  // Debounce fetchProducts to avoid too many API calls
   useEffect(() => {
     const timeoutId = setTimeout(() => {
       fetchProducts();
@@ -108,7 +105,6 @@ export default function ConsumerDashboard() {
     }
   };
 
-  // Get search suggestions
   const suggestions =
     search.length > 0
       ? [
@@ -125,14 +121,12 @@ export default function ConsumerDashboard() {
         ].slice(0, 5)
       : [];
 
-  // Handle sort change
   const handleSortChange = (value) => {
     const [newSortBy, newSortOrder] = value.split("-");
     setSortBy(newSortBy);
     setSortOrder(newSortOrder);
   };
 
-  // Clear all filters
   const clearAllFilters = () => {
     setCity("");
     setSelectedCategory("");
@@ -144,7 +138,6 @@ export default function ConsumerDashboard() {
     toast.success("All filters cleared");
   };
 
-  // Active filters count
   const activeFiltersCount = [
     city,
     selectedCategory,
@@ -153,7 +146,6 @@ export default function ConsumerDashboard() {
     search,
   ].filter(Boolean).length;
 
-  // Remove individual filter
   const removeFilter = (filterName) => {
     switch (filterName) {
       case "city":
