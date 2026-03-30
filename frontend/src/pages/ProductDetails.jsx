@@ -25,9 +25,6 @@ export default function ProductDetails() {
     loadCurrentUser();
   }, [id]);
 
-  /**
-   * Fetch product details from backend API
-   */
   const fetchProduct = async () => {
     try {
       const res = await API.get(`/products/${id}`);
@@ -40,9 +37,6 @@ export default function ProductDetails() {
     }
   };
 
-  /**
-   * Fetch product reviews
-   */
   const fetchReviews = async () => {
     try {
       const res = await API.get(`/reviews/product/${id}`);
