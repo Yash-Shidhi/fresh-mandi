@@ -1,12 +1,3 @@
-/**
- * ProductDetails Component
- * Displays detailed information about a specific product including:
- * - Product image, name, category, price, quantity
- * - Farmer information and location
- * - QR code for quick sharing
- * - Add to cart functionality
- */
-
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import API from "../services/api";

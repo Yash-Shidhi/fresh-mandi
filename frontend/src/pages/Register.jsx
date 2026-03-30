@@ -18,7 +18,6 @@ export default function Register() {
   const [errors, setErrors] = useState({})
   const navigate = useNavigate()
 
-  // Validation function
   const validateForm = () => {
     const newErrors = {}
     
