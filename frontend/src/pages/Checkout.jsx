@@ -1,69 +1,127 @@
-import React, { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { useCart } from '../context/CartContext'
-import API from '../services/api'
-import toast from 'react-hot-toast'
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useCart } from "../context/CartContext";
+import API from "../services/api";
+import toast from "react-hot-toast";
 
 export default function Checkout() {
-  const { cart, cartTotal, clearCart } = useCart()
-  const navigate = useNavigate()
-  const [deliveryMode, setDeliveryMode] = useState('pickup')
-  const [address, setAddress] = useState('')
-  const [loading, setLoading] = useState(false)
+  const { cart, cartTotal, clearCart } = useCart();
+  const navigate = useNavigate();
+  const [deliveryMode, setDeliveryMode] = useState("pickup");
+  const [address, setAddress] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const getFarmerId = (item) => {
+    if (!item) return null;
+    if (item.farmerId?._id) return item.farmerId._id;
+    if (typeof item.farmerId === "string") return item.farmerId;
+    if (item.farmer?._id) return item.farmer._id;
+    if (typeof item.farmer === "string") return item.farmer;
+    return null;
+  };
+
+  const getProductId = (item) => {
+    if (!item) return null;
+    if (item._id) return item._id;
+    if (item.productId?._id) return item.productId._id;
+    if (typeof item.productId === "string") return item.productId;
+    return null;
+  };
 
   const handlePlaceOrder = async (e) => {
-    e.preventDefault()
+    e.preventDefault();
 
     if (cart.length === 0) {
-      toast.error('Your cart is empty')
-      return
+      toast.error("Your cart is empty");
+      return;
     }
 
-    if (deliveryMode === 'delivery' && !address.trim()) {
-      toast.error('Please enter your delivery address')
-      return
+    if (deliveryMode === "delivery" && !address.trim()) {
+      toast.error("Please enter your delivery address");
+      return;
     }
-
-    setLoading(true)
+    // Verify token exists
+    const token = localStorage.getItem("token");
+    if (!token) {
+      toast.error("Authentication required. Please login again.");
+      return;
+    }
+    setLoading(true);
     try {
       // Group products by farmer
-      const ordersByFarmer = {}
-      cart.forEach(item => {
-        const farmerId = item.farmerId?._id || item.farmerId
+      const ordersByFarmer = {};
+      const invalidItems = [];
+
+      cart.forEach((item) => {
+        const farmerId = getFarmerId(item);
+        const productId = getProductId(item);
+        const quantity = Number(item.cartQuantity);
+        const price = Number(item.price);
+
+        if (
+          !farmerId ||
+          !productId ||
+          !quantity ||
+          quantity <= 0 ||
+          Number.isNaN(price)
+        ) {
+          invalidItems.push(item.name || "Unknown product");
+          return;
+        }
+
         if (!ordersByFarmer[farmerId]) {
-          ordersByFarmer[farmerId] = []
+          ordersByFarmer[farmerId] = [];
         }
         ordersByFarmer[farmerId].push({
-          productId: item._id,
-          quantity: item.cartQuantity,
-          price: item.price
-        })
-      })
+          productId,
+          quantity,
+          price,
+        });
+      });
+
+      if (invalidItems.length > 0) {
+        throw new Error(
+          `Some cart items are invalid. Please remove and re-add: ${invalidItems.join(", ")}`,
+        );
+      }
+
+      if (Object.keys(ordersByFarmer).length === 0) {
+        throw new Error("No valid items found in cart");
+      }
 
       // Create separate orders for each farmer
-      const orderPromises = Object.entries(ordersByFarmer).map(([farmerId, products]) => {
-        const orderTotal = products.reduce((sum, p) => sum + (p.price * p.quantity), 0)
-        return API.post('/orders', {
-          farmerId,
-          products,
-          totalPrice: orderTotal,
-          deliveryMode,
-          deliveryAddress: deliveryMode === 'delivery' ? address : undefined
-        })
-      })
+      const orderPromises = Object.entries(ordersByFarmer).map(
+        ([farmerId, products]) => {
+          const orderTotal = products.reduce(
+            (sum, p) => sum + p.price * p.quantity,
+            0,
+          );
+          return API.post("/orders", {
+            farmerId,
+            products,
+            totalPrice: orderTotal,
+            deliveryMode,
+            deliveryAddress: deliveryMode === "delivery" ? address : undefined,
+          });
+        },
+      );
 
-      await Promise.all(orderPromises)
-      
-      clearCart()
-      toast.success(`Order${orderPromises.length > 1 ? 's' : ''} placed successfully!`)
-      navigate('/orders')
+      await Promise.all(orderPromises);
+
+      clearCart(false);
+      toast.success(
+        `Order${orderPromises.length > 1 ? "s" : ""} placed successfully!`,
+      );
+      navigate("/orders");
     } catch (err) {
-      console.error('Order error:', err)
-      toast.error(err.response?.data?.message || 'Failed to place order')
+      console.error("Order error:", err);
+      toast.error(
+        err.response?.data?.message || err.message || "Failed to place order",
+      );
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   if (cart.length === 0) {
     return (
@@ -71,14 +129,14 @@ export default function Checkout() {
         <div className="bg-white p-8 rounded shadow text-center">
           <p className="text-gray-600 mb-4">Your cart is empty</p>
           <button
-            onClick={() => navigate('/consumer')}
+            onClick={() => navigate("/consumer")}
             className="bg-green-600 text-white px-6 py-2 rounded hover:bg-green-700"
           >
             Browse Products
           </button>
         </div>
       </div>
-    )
+    );
   }
 
   return (
@@ -92,13 +150,15 @@ export default function Checkout() {
             <h2 className="text-xl font-bold mb-4">Delivery Details</h2>
             <form onSubmit={handlePlaceOrder}>
               <div className="mb-4">
-                <label className="block text-sm font-medium mb-2">Delivery Mode</label>
+                <label className="block text-sm font-medium mb-2">
+                  Delivery Mode
+                </label>
                 <div className="space-y-2">
                   <label className="flex items-center">
                     <input
                       type="radio"
                       value="pickup"
-                      checked={deliveryMode === 'pickup'}
+                      checked={deliveryMode === "pickup"}
                       onChange={(e) => setDeliveryMode(e.target.value)}
                       className="mr-2"
                     />
@@ -108,7 +168,7 @@ export default function Checkout() {
                     <input
                       type="radio"
                       value="delivery"
-                      checked={deliveryMode === 'delivery'}
+                      checked={deliveryMode === "delivery"}
                       onChange={(e) => setDeliveryMode(e.target.value)}
                       className="mr-2"
                     />
@@ -117,16 +177,18 @@ export default function Checkout() {
                 </div>
               </div>
 
-              {deliveryMode === 'delivery' && (
+              {deliveryMode === "delivery" && (
                 <div className="mb-4">
-                  <label className="block text-sm font-medium mb-2">Delivery Address</label>
+                  <label className="block text-sm font-medium mb-2">
+                    Delivery Address
+                  </label>
                   <textarea
                     value={address}
                     onChange={(e) => setAddress(e.target.value)}
                     placeholder="Enter your complete address"
                     rows={3}
                     className="w-full border rounded px-3 py-2"
-                    required={deliveryMode === 'delivery'}
+                    required={deliveryMode === "delivery"}
                   />
                 </div>
               )}
@@ -136,7 +198,7 @@ export default function Checkout() {
                 disabled={loading}
                 className="w-full bg-green-600 text-white py-3 rounded font-semibold hover:bg-green-700 disabled:bg-gray-400"
               >
-                {loading ? 'Placing Order...' : 'Place Order'}
+                {loading ? "Placing Order..." : "Place Order"}
               </button>
             </form>
           </div>
@@ -146,9 +208,9 @@ export default function Checkout() {
         <div className="lg:col-span-1">
           <div className="bg-white p-6 rounded shadow sticky top-4">
             <h2 className="text-xl font-bold mb-4">Order Summary</h2>
-            
+
             <div className="space-y-3 mb-4">
-              {cart.map(item => (
+              {cart.map((item) => (
                 <div key={item._id} className="flex justify-between text-sm">
                   <span className="text-gray-700">
                     {item.name} × {item.cartQuantity}
@@ -175,5 +237,5 @@ export default function Checkout() {
         </div>
       </div>
     </div>
-  )
+  );
 }
