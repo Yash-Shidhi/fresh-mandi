@@ -89,13 +89,11 @@ export default function ConsumerDashboard() {
     return () => clearTimeout(timeoutId);
   }, [fetchProducts]);
 
-  // Handle search with recent searches
   const handleSearch = (searchTerm) => {
     setSearch(searchTerm);
     setShowSuggestions(false);
 
     if (searchTerm.trim()) {
-      // Add to recent searches
       const updated = [
         searchTerm,
         ...recentSearches.filter((s) => s !== searchTerm),
