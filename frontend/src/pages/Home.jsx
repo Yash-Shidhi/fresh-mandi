@@ -11,7 +11,7 @@ export default function Home() {
             🌾 FreshMandi
           </h1>
           <p className="text-xl text-gray-600 mb-2">
-            City-Based Farmer–Consumer Marketplace
+            A Digital Mandi
           </p>
           <p className="text-lg text-gray-500 mb-8">
             Connecting local farmers with consumers for fresh, quality produce
