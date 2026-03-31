@@ -16,7 +16,6 @@ export default function NotificationBell() {
     clearAllNotifications,
   } = useNotifications();
 
-  // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {

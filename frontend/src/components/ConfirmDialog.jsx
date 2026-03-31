@@ -1,7 +1,6 @@
 import React from 'react'
 import toast from 'react-hot-toast'
 
-// Custom confirm function using react-hot-toast
 export const confirmDelete = (message, onConfirm) => {
   return new Promise((resolve) => {
     toast((t) => (
