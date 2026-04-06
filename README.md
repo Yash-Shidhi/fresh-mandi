@@ -1,4 +1,4 @@
-# FreshMandi – City-Based Farmer–Consumer Marketplace
+# FreshMandi – A Digital Mandi
 
 A full-stack web application connecting local farmers with consumers in a city-based marketplace. Farmers can list their produce with images, manage inventory, and receive orders. Consumers can browse products by city and place orders. Admins can manage users and view analytics.
 
@@ -660,3 +660,4 @@ For issues or questions, please open an issue in the repository or contact the m
 ---
 
 **Happy Coding! 🌱🛒**
+

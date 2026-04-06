@@ -9,7 +9,6 @@ export default function ReviewList({ reviews, currentUser, productOwnerId, onRev
   const [replyText, setReplyText] = useState('')
   const [loadingReply, setLoadingReply] = useState(false)
   
-  // Sort reviews
   const sortedReviews = [...reviews].sort((a, b) => {
     if (sortBy === 'recent') return new Date(b.createdAt) - new Date(a.createdAt)
     if (sortBy === 'highest') return b.rating - a.rating
@@ -17,7 +16,6 @@ export default function ReviewList({ reviews, currentUser, productOwnerId, onRev
     return 0
   })
   
-  // Format date
   const formatDate = (date) => {
     return new Date(date).toLocaleDateString('en-US', {
       year: 'numeric',
@@ -26,7 +24,6 @@ export default function ReviewList({ reviews, currentUser, productOwnerId, onRev
     })
   }
   
-  // Handle vote
   const handleVote = async (reviewId, voteType) => {
     if (!currentUser) {
       toast.error('Please login to vote')
@@ -42,7 +39,6 @@ export default function ReviewList({ reviews, currentUser, productOwnerId, onRev
     }
   }
   
-  // Handle delete
   const handleDelete = async (reviewId) => {
     if (!confirm('Are you sure you want to delete this review?')) return
     
@@ -55,7 +51,6 @@ export default function ReviewList({ reviews, currentUser, productOwnerId, onRev
     }
   }
   
-  // Handle farmer reply
   const handleReply = async (reviewId) => {
     if (!replyText.trim()) {
       toast.error('Please write a reply')
